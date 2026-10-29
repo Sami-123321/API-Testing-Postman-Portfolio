@@ -47,7 +47,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"qa.portfolio.user@example.com\",\r\n    \"password\": \"QaPortfolio123!\"\r\n}",
+              "raw": "{\r\n    \"email\": \"{{loginEmail}}\",\r\n    \"password\": \"{{loginPassword}}\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -70,6 +70,50 @@
         },
         {
           "name": "Create User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uniqueId = Date.now();\r",
+                  "\r",
+                  "pm.variables.set(\r",
+                  "    \"randomEmail\",\r",
+                  "    `qa.portfolio.${uniqueId}@example.com`\r",
+                  ");\r",
+                  "\r",
+                  "pm.variables.set(\r",
+                  "    \"randomUserName\",\r",
+                  "    `qaPortfolioUser${uniqueId}`\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is less than 3000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response body is not empty\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.not.be.empty;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -85,7 +129,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userName\": \"qaPortfolioUser\",\r\n    \"email\": \"{{loginEmail}}\",\r\n    \"password\": \"{{loginPassword}}\",\r\n    \"rePassword\": \"{{loginPassword}}\",\r\n    \"acceptedAgreement\": true\r\n}",
+              "raw": "{\r\n    \"userName\": \"{{randomUserName}}\",\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"{{loginPassword}}\",\r\n    \"rePassword\": \"{{loginPassword}}\",\r\n    \"acceptedAgreement\": true\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
