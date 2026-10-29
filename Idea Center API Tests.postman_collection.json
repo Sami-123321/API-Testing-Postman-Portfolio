@@ -1,0 +1,1821 @@
+{
+  "info": {
+    "_postman_id": "c59a6fbb-f2c9-4413-b8e6-7741b0034625",
+    "name": "Idea Center API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43583791"
+  },
+  "item": [
+    {
+      "name": "Positive Tests",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response contains email\", function () {\r",
+                  "    pm.expect(jsonData).to.have.property(\"email\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response contains password\", function () {\r",
+                  "    pm.expect(jsonData).to.have.property(\"password\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response contains accessToken\", function () {\r",
+                  "    pm.expect(jsonData).to.have.property(\"accessToken\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"token\", jsonData.accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"qa.portfolio.user@example.com\",\r\n    \"password\": \"QaPortfolio123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/User/Authentication",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "User",
+                "Authentication"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userName\": \"qaPortfolioUser\",\r\n    \"email\": \"{{loginEmail}}\",\r\n    \"password\": \"{{loginPassword}}\",\r\n    \"rePassword\": \"{{loginPassword}}\",\r\n    \"acceptedAgreement\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://144.91.123.158:82/api/User/Create",
+              "protocol": "http",
+              "host": [
+                "144",
+                "91",
+                "123",
+                "158"
+              ],
+              "port": "82",
+              "path": [
+                "api",
+                "User",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Idea",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const words = [\"Idea\", \"QA\", \"Test\", \"Postman\", \"Portfolio\"];\r",
+                  "\r",
+                  "const word = words[Math.floor(Math.random() * words.length)];\r",
+                  "\r",
+                  "const digits = Math.floor(Math.random() * 1000);\r",
+                  "\r",
+                  "const randomTitle = `${word}${digits}`;\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"randomTitle\", randomTitle);\r",
+                  "\r",
+                  "console.log(\"Generated title:\", randomTitle);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Idea object exists\", function () {\r",
+                  "    pm.expect(jsonData).to.have.property(\"idea\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title matches generated title\", function () {\r",
+                  "    pm.expect(jsonData.idea.title)\r",
+                  "        .to.eql(pm.collectionVariables.get(\"randomTitle\"));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Description matches expected description\", function () {\r",
+                  "    pm.expect(jsonData.idea.description)\r",
+                  "        .to.eql(\"Created through Postman API automation.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"{{randomTitle}}\",\r\n    \"url\": \"\",\r\n    \"description\": \"Created through Postman API automation.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Ideas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const ideas = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(ideas).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"At least one idea exists\", function () {\r",
+                  "    pm.expect(ideas.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "const lastIdea = ideas[ideas.length - 1];\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"lastIdeaId\", lastIdea.id);\r",
+                  "\r",
+                  "pm.test(\"Last idea has an ID\", function () {\r",
+                  "    pm.expect(lastIdea.id).to.exist;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/All",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "All"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Edit the Last Created Idea",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Success message is returned\", function () {\r",
+                  "    pm.expect(jsonData.msg).to.eql(\"Edited successfully\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title was updated\", function () {\r",
+                  "    pm.expect(jsonData.idea.title).to.eql(\"Edited QA Idea\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Description was updated\", function () {\r",
+                  "    pm.expect(jsonData.idea.description)\r",
+                  "        .to.eql(\"Updated through Postman API automation.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Edited QA Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"Updated through Postman API automation.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Edit?ideaId={{lastIdeaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Edit"
+              ],
+              "query": [
+                {
+                  "key": "ideaId",
+                  "value": "{{lastIdeaId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete the Edited Idea",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Success message is correct\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.eql(\"The idea is deleted!\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Delete?ideaId={{lastIdeaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Delete"
+              ],
+              "query": [
+                {
+                  "key": "ideaId",
+                  "value": "{{lastIdeaId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Negative Tests",
+      "item": [
+        {
+          "name": "Create Idea — Invalid URL",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Invalid URL error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Url)\r",
+                  "        .to.include(\"Please enter valid url for a picture!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Idea\",\r\n    \"url\": \"not-a-valid-url\",\r\n    \"description\": \"Testing an invalid URL.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Missing Title",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Title required error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Title)\r",
+                  "        .to.include(\"The Title field is required.\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Minimum title length error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Title)\r",
+                  "        .to.include(\r",
+                  "            \"The field Title must be a string or array type with a minimum length of '2'.\"\r",
+                  "        );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"\",\r\n    \"url\": \"\",\r\n    \"description\": \"Testing idea creation without a title.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Missing Description",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Description required error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Description)\r",
+                  "        .to.include(\"The Description field is required.\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Minimum description length error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Description)\r",
+                  "        .to.include(\r",
+                  "            \"The field Description must be a string or array type with a minimum length of '3'.\"\r",
+                  "        );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — No Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Request is rejected without token\", function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"{{randomTitle}}\",\r\n    \"url\": \"\",\r\n    \"description\": \"Created through Postman API automation.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Edit Idea — No Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Request is rejected without token\", function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Edited QA Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"Updated through Postman API automation.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Edit?ideaId={{lastIdeaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Edit"
+              ],
+              "query": [
+                {
+                  "key": "ideaId",
+                  "value": "{{lastIdeaId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Idea — No Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Request is rejected without token\", function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Delete?ideaId={{lastIdeaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Delete"
+              ],
+              "query": [
+                {
+                  "key": "ideaId",
+                  "value": "{{lastIdeaId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Invalid Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Invalid credential message is returned\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.eql(\"Invalid credential!\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{loginEmail}}\",\r\n    \"password\": \"WrongPassword123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/User/Authentication",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "User",
+                "Authentication"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Invalid Email Format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Invalid email error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Email)\r",
+                  "        .to.include(\"Email address is invalid!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"not-an-email\",\r\n    \"password\": \"{{loginPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/User/Authentication",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "User",
+                "Authentication"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Empty Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Email required error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Email)\r",
+                  "        .to.include(\"The e-mail is required!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Invalid email error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Email)\r",
+                  "        .to.include(\"Email address is invalid!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"{{loginPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/User/Authentication",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "User",
+                "Authentication"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Empty Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Password required error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Password)\r",
+                  "        .to.include(\"The password is required!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{loginEmail}}\",\r\n    \"password\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/User/Authentication",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "User",
+                "Authentication"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Description Too Short",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Minimum description length error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Description)\r",
+                  "        .to.include(\r",
+                  "            \"The field Description must be a string or array type with a minimum length of '3'.\"\r",
+                  "        );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"AB\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Title Too Short",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Minimum title length error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Title)\r",
+                  "        .to.include(\r",
+                  "            \"The field Title must be a string or array type with a minimum length of '2'.\"\r",
+                  "        );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"A\",\r\n    \"url\": \"\",\r\n    \"description\": \"Testing a title that is too short.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET All Ideas - No Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Request is rejected without authentication\", function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://144.91.123.158:82/api/Idea/All",
+              "protocol": "http",
+              "host": [
+                "144",
+                "91",
+                "123",
+                "158"
+              ],
+              "port": "82",
+              "path": [
+                "api",
+                "Idea",
+                "All"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases",
+      "item": [
+        {
+          "name": "Create Idea — Description Maximum Length",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const longDescription = \"A\".repeat(400);\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"longDescription\", longDescription);\r",
+                  "\r",
+                  "console.log(\"Description length:\", longDescription.length);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Idea is created successfully\", function () {\r",
+                  "    pm.expect(jsonData.msg).to.eql(\"Successfully created!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Description contains exactly 400 characters\", function () {\r",
+                  "    pm.expect(jsonData.idea.description).to.have.lengthOf(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title matches expected value\", function () {\r",
+                  "    pm.expect(jsonData.idea.title).to.eql(\"Test Idea\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"{{longDescription}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Long Description",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Maximum description length error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Description)\r",
+                  "        .to.include(\r",
+                  "            \"The field Description must be a string or array type with a maximum length of '400'.\"\r",
+                  "        );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"This is a very long description used to test how the Idea Center API handles large amounts of text. This is a very long description used to test how the Idea Center API handles large amounts of text. This is a very long description used to test how the Idea Center API handles large amounts of text. This is a very long description used to test how the Idea Center API handles large amounts of text. This is a very long description used to test how the Idea Center API handles large amounts of text.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Title Maximum Length",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Idea is created successfully\", function () {\r",
+                  "    pm.expect(jsonData.msg).to.eql(\"Successfully created!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title contains exactly 70 characters\", function () {\r",
+                  "    pm.expect(jsonData.idea.title).to.have.lengthOf(70);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Description matches expected value\", function () {\r",
+                  "    pm.expect(jsonData.idea.description)\r",
+                  "        .to.eql(\"Testing maximum title length.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"A123456789B123456789C123456789D123456789E123456789F123456789G123456789\",\r\n    \"url\": \"\",\r\n    \"description\": \"Testing maximum title length.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Long Title",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Maximum title length error is returned\", function () {\r",
+                  "    pm.expect(jsonData.errors.Title)\r",
+                  "        .to.include(\r",
+                  "            \"The field Title must be a string or array type with a maximum length of '70'.\"\r",
+                  "        );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response status is 400\", function () {\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"This is a very long title used to test the maximum allowed title length in the Idea Center API.\",\r\n    \"url\": \"\",\r\n    \"description\": \"Testing a long title.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Title With Spaces",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Idea is created successfully\", function () {\r",
+                  "    pm.expect(jsonData.msg).to.eql(\"Successfully created!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title with spaces is accepted\", function () {\r",
+                  "    pm.expect(jsonData.idea.title).to.eql(\"  Test Idea  \");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Description matches expected value\", function () {\r",
+                  "    pm.expect(jsonData.idea.description)\r",
+                  "        .to.eql(\"Testing spaces around title.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"  Test Idea  \",\r\n    \"url\": \"\",\r\n    \"description\": \"Testing spaces around title.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Description Minimum Length",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Idea is created successfully\", function () {\r",
+                  "    pm.expect(jsonData.msg).to.eql(\"Successfully created!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title matches expected value\", function () {\r",
+                  "    pm.expect(jsonData.idea.title).to.eql(\"Test Idea\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Minimum length description is accepted\", function () {\r",
+                  "    pm.expect(jsonData.idea.description).to.eql(\"ABC\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Idea\",\r\n    \"url\": \"\",\r\n    \"description\": \"ABC\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Idea — Title Minimum Length",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Idea is created successfully\", function () {\r",
+                  "    pm.expect(jsonData.msg).to.eql(\"Successfully created!\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Minimum length title is accepted\", function () {\r",
+                  "    pm.expect(jsonData.idea.title).to.eql(\"AB\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Description matches expected value\", function () {\r",
+                  "    pm.expect(jsonData.idea.description)\r",
+                  "        .to.eql(\"Testing minimum title length.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"AB\",\r\n    \"url\": \"\",\r\n    \"description\": \"Testing minimum title length.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/Idea/Create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "Idea",
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "randomTitle",
+      "value": ""
+    },
+    {
+      "key": "lastIdeaId",
+      "value": ""
+    },
+    {
+      "key": "longDescription",
+      "value": ""
+    },
+    {
+      "value": ""
+    }
+  ]
+}
